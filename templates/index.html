@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>TikTok Downloader</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+</head>
+
+<body>
+
+<main class="container">
+
+    <section class="card">
+
+        <h1>
+            TikTok Downloader
+        </h1>
+
+        <p class="description">
+            Cole o link do vídeo e escolha onde deseja salvar.
+        </p>
+
+
+        <form id="downloadForm">
+
+            <label for="url">
+                Link do TikTok
+            </label>
+
+            <input
+                id="url"
+                type="url"
+                placeholder="https://www.tiktok.com/@usuario/video/..."
+                required
+            >
+
+
+            <label>
+                Pasta de destino
+            </label>
+
+            <button
+                type="button"
+                id="chooseFolder"
+                class="secondary-button"
+            >
+                Escolher pasta
+            </button>
+
+
+            <div id="folderInfo">
+
+                Nenhuma pasta selecionada
+
+            </div>
+
+
+            <button
+                type="submit"
+                id="downloadButton"
+            >
+                Baixar vídeo
+            </button>
+
+        </form>
+
+
+        <div
+            id="status"
+            class="status"
+        ></div>
+
+    </section>
+
+</main>
+
+
+<script
+    src="{{ url_for('static', filename='script.js') }}"
+></script>
+
+</body>
+
+</html>
