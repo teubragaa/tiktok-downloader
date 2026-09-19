@@ -1,13 +1,5 @@
-let selectedDirectory = null;
-
-
-const form = document.getElementById("downloadForm");
-
-const chooseFolderButton =
-    document.getElementById("chooseFolder");
-
-const folderInfo =
-    document.getElementById("folderInfo");
+const form =
+    document.getElementById("downloadForm");
 
 const status =
     document.getElementById("status");
@@ -16,54 +8,6 @@ const downloadButton =
     document.getElementById("downloadButton");
 
 
-const supportsDirectoryPicker =
-    "showDirectoryPicker" in window;
-
-
-// Selecionar pasta
-chooseFolderButton.addEventListener(
-    "click",
-    async () => {
-
-        if (!supportsDirectoryPicker) {
-
-            status.textContent =
-                "Seu navegador não permite selecionar pastas diretamente. O download convencional será utilizado.";
-
-            return;
-        }
-
-        try {
-
-            selectedDirectory =
-                await window.showDirectoryPicker({
-                    mode: "readwrite",
-                    startIn: "downloads"
-                });
-
-
-            folderInfo.textContent =
-                `Pasta selecionada: ${selectedDirectory.name}`;
-
-        }
-        catch (error) {
-
-            if (error.name !== "AbortError") {
-
-                console.error(error);
-
-                status.textContent =
-                    "Não foi possível acessar a pasta.";
-
-            }
-
-        }
-
-    }
-);
-
-
-// Download
 form.addEventListener(
     "submit",
     async (event) => {
@@ -85,6 +29,55 @@ form.addEventListener(
         }
 
 
+        let fileHandle = null;
+
+
+        if ("showSaveFilePicker" in window) {
+
+            try {
+
+                fileHandle =
+                    await window.showSaveFilePicker({
+
+                        suggestedName:
+                            "video_tiktok.mp4",
+
+                        startIn:
+                            "downloads",
+
+                        types: [
+                            {
+                                description:
+                                    "Vídeo MP4",
+
+                                accept: {
+                                    "video/mp4": [
+                                        ".mp4"
+                                    ]
+                                }
+                            }
+                        ]
+
+                    });
+
+            }
+            catch (error) {
+
+                if (error.name === "AbortError") {
+
+                    status.textContent =
+                        "Download cancelado.";
+
+                    return;
+                }
+
+                console.error(error);
+
+            }
+
+        }
+
+
         downloadButton.disabled = true;
 
         downloadButton.textContent =
@@ -96,23 +89,24 @@ form.addEventListener(
 
         try {
 
-            const response = await fetch(
-                "/api/download",
-                {
+            const response =
+                await fetch(
+                    "/api/download",
+                    {
 
-                    method: "POST",
+                        method: "POST",
 
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
 
-                    body: JSON.stringify({
-                        url: url
-                    })
+                        body: JSON.stringify({
+                            url: url
+                        })
 
-                }
-            );
+                    }
+                );
 
 
             if (!response.ok) {
@@ -146,65 +140,33 @@ form.addEventListener(
                 await response.blob();
 
 
-            /*
-             * Se o navegador suporta escolha
-             * de diretório e uma pasta foi
-             * selecionada.
-             */
-            if (
-                selectedDirectory &&
-                supportsDirectoryPicker
-            ) {
-
-                const fileHandle =
-                    await selectedDirectory
-                        .getFileHandle(
-                            filename,
-                            {
-                                create: true
-                            }
-                        );
-
+            if (fileHandle) {
 
                 const writable =
                     await fileHandle
                         .createWritable();
 
-
                 await writable.write(
                     blob
                 );
 
-
                 await writable.close();
 
-
                 status.textContent =
-                    `Vídeo salvo em ${selectedDirectory.name}`;
+                    "Vídeo salvo com sucesso!";
 
             }
-
             else {
-
-                /*
-                 * Fallback:
-                 *
-                 * Chrome antigo,
-                 * Firefox,
-                 * Safari etc.
-                 */
 
                 const downloadUrl =
                     URL.createObjectURL(
                         blob
                     );
 
-
                 const link =
                     document.createElement(
                         "a"
                     );
-
 
                 link.href =
                     downloadUrl;
@@ -212,22 +174,17 @@ form.addEventListener(
                 link.download =
                     filename;
 
-
                 document.body.appendChild(
                     link
                 );
 
-
                 link.click();
 
-
                 link.remove();
-
 
                 URL.revokeObjectURL(
                     downloadUrl
                 );
-
 
                 status.textContent =
                     "Download concluído.";
@@ -235,7 +192,6 @@ form.addEventListener(
             }
 
         }
-
         catch (error) {
 
             console.error(error);
@@ -244,7 +200,6 @@ form.addEventListener(
                 error.message;
 
         }
-
         finally {
 
             downloadButton.disabled =
