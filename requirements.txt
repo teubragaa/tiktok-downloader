@@ -1,6 +1,3 @@
 Flask
 yt-dlp
 gunicorn
-faster-whisper
-edge-tts
-requests
