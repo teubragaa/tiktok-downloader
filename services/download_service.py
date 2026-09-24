@@ -4,7 +4,6 @@ import yt_dlp
 
 from models.video import DownloadRequest, DownloadResult
 
-
 class DownloadService:
 
     TEMP_ROOT = Path("/tmp/tiktok-downloader")
